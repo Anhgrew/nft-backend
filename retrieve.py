@@ -8,9 +8,9 @@ def download_image(_data_):
     _img_ = requests.get(_data_['meta']['content'][0]['url'], stream=True)
     _tok_ = _data_['id']
     _path_ = 'D:/Github/Capstone/nft-backend/Example/' + str(indexItem) + '.png'
-    #with open(_path_, 'wb') as f:
-        #_img_.raw.decode_content = True
-        #shutil.copyfileobj(_img_.raw, f)
+    with open(_path_, 'wb') as f:
+        _img_.raw.decode_content = True
+        shutil.copyfileobj(_img_.raw, f)
     return [_tok_, _path_]
 
 
@@ -33,12 +33,19 @@ def get_rarible(_cont_ = ""):
             _address_[_item_[0]] = _item_[1]
         if not _ncont_ == _cont_:
             _add_ = get_rarible(_ncont_)
+            if _add_ == None:
+              if _address_ == None:
+                return {}
+              return _address_
+            if _address_ == None:
+              return _add_
             return {**_address_, **_add_}
         return _address_
     else:
         print("error network")
         return get_rarible(_cont_)
 
+print('done crawling')
 
 AddressBook = get_rarible()
 with open('dict.csv', 'w') as csv_file:
