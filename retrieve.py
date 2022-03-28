@@ -1,12 +1,16 @@
+from distutils.command.config import config
 import requests
 import shutil
 import csv
+from decouple import config
+
+dataPath = config('DATA_PATH')
 
 
-def download_image(_data_, _id_):
+def download_image(_data_, _item_index_):
     _img_ = requests.get(_data_['meta']['content'][0]['url'], stream=True)
     _tok_ = _data_['id']
-    _path_ = 'D:/Github/Capstone/nft-backend/Example/' + str(_id_) + '.png'
+    _path_ = dataPath + str(_item_index_) + '.png'
     with open(_path_, 'wb') as f:
         _img_.raw.decode_content = True
         shutil.copyfileobj(_img_.raw, f)
@@ -15,16 +19,18 @@ def download_image(_data_, _id_):
 
 def get_rarible(_index_, _cont_ = ""):
     _address_ = {}
-    print(_cont_)
+    print("_cont_:", _cont_)
+
     _req_ = requests.get('https://api.rarible.org/v0.1/items/byCollection', timeout=100,
     params={
         'collection': 'ETHEREUM:0x4b61413d4392c806e6d0ff5ee91e6073c21d6430',
         'continuation': _cont_
         })
+
     if _req_.status_code == 200:
         _jfile_ = _req_.json()
         if "continuation" not in _jfile_:
-            return
+            return # stop the function if not receive
         _ncont_ = _jfile_["continuation"]
         _result_ = _jfile_["items"]
         for __it in  _result_:
